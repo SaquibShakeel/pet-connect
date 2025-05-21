@@ -63,6 +63,16 @@ export default function RegisterPage() {
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? "Registering..." : "Register"}
             </Button>
+            <div className="text-center text-sm text-muted-foreground">
+              Already have an account?{" "}
+              <Button
+                variant="link"
+                className="p-0 h-auto font-normal"
+                onClick={() => router.push("/login")}
+              >
+                Login here
+              </Button>
+            </div>
           </form>
         </CardContent>
       </Card>

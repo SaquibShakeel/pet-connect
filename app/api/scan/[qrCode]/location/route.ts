@@ -4,9 +4,10 @@ import { prisma } from "@/lib/prisma";
 // Public route - no authentication required
 export async function POST(
   request: Request,
-  { params }: { params: { qrCode: string } }
+  { params }: { params: Promise<{ qrCode: string }> }
 ) {
   try {
+    const { qrCode } = await params;
     const { latitude, longitude } = await request.json();
 
     if (!latitude || !longitude) {
@@ -17,7 +18,7 @@ export async function POST(
     }
 
     const pet = await prisma.pet.findUnique({
-      where: { qrCode: params.qrCode },
+      where: { qrCode },
     });
 
     if (!pet) {

@@ -6,11 +6,12 @@ import { prisma } from "@/lib/prisma";
 // GET /api/pets/[id]/posts - Get all posts for a pet
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const posts = await prisma.post.findMany({
-      where: { petId: params.id },
+      where: { petId: id },
       include: {
         likes: true,
         comments: {
@@ -40,9 +41,10 @@ export async function GET(
 // POST /api/pets/[id]/posts - Create a new post
 export async function POST(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json(
@@ -53,7 +55,7 @@ export async function POST(
 
     // Check if user is the pet owner
     const pet = await prisma.pet.findUnique({
-      where: { id: params.id },
+      where: { id },
       select: { userId: true }
     });
 
@@ -83,7 +85,7 @@ export async function POST(
       data: {
         image,
         caption,
-        petId: params.id,
+        petId: id,
       },
     });
 

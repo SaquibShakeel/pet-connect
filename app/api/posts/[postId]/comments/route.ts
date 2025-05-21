@@ -6,11 +6,12 @@ import { prisma } from "@/lib/prisma";
 // GET /api/posts/[postId]/comments - Get all comments for a post
 export async function GET(
   request: Request,
-  { params }: { params: { postId: string } }
+  { params }: { params: Promise<{ postId: string }> }
 ) {
   try {
+    const { postId } = await params;
     const comments = await prisma.comment.findMany({
-      where: { postId: params.postId },
+      where: { postId },
       include: {
         user: {
           select: {
@@ -35,9 +36,10 @@ export async function GET(
 // POST /api/posts/[postId]/comments - Add a comment to a post
 export async function POST(
   request: Request,
-  { params }: { params: { postId: string } }
+  { params }: { params: Promise<{ postId: string }> }
 ) {
   try {
+    const { postId } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json(
@@ -57,7 +59,7 @@ export async function POST(
     const comment = await prisma.comment.create({
       data: {
         content,
-        postId: params.postId,
+        postId,
         userId: session.user.id,
       },
       include: {

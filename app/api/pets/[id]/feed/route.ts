@@ -5,8 +5,9 @@ import { prisma } from "@/lib/prisma";
 // POST /api/pets/[id]/feed - Add a feed record
 export async function POST(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   const session = await getServerSession();
   if (!session?.user?.email) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -14,7 +15,7 @@ export async function POST(
 
   const { notes } = await req.json();
   const pet = await prisma.pet.update({
-    where: { id: params.id },
+    where: { id },
     data: {
       feeds: {
         create: {

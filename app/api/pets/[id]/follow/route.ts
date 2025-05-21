@@ -6,9 +6,10 @@ import { prisma } from "@/lib/prisma";
 // GET /api/pets/[id]/follow - Check if user follows the pet
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
       return NextResponse.json(
@@ -21,7 +22,7 @@ export async function GET(
       where: {
         userId_petId: {
           userId: session.user.id,
-          petId: params.id,
+          petId: id,
         },
       },
     });
@@ -39,9 +40,10 @@ export async function GET(
 // POST /api/pets/[id]/follow - Follow a pet
 export async function POST(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
       return NextResponse.json(
@@ -52,7 +54,7 @@ export async function POST(
 
     // Check if pet exists
     const pet = await prisma.pet.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!pet) {
@@ -67,7 +69,7 @@ export async function POST(
       where: {
         userId_petId: {
           userId: session.user.id,
-          petId: params.id,
+          petId: id,
         },
       },
     });
@@ -82,7 +84,7 @@ export async function POST(
     const follow = await prisma.follow.create({
       data: {
         userId: session.user.id,
-        petId: params.id,
+        petId: id,
       },
     });
 
@@ -99,9 +101,10 @@ export async function POST(
 // DELETE /api/pets/[id]/follow - Unfollow a pet
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
       return NextResponse.json(
@@ -114,7 +117,7 @@ export async function DELETE(
       where: {
         userId_petId: {
           userId: session.user.id,
-          petId: params.id,
+          petId: id,
         },
       },
     });

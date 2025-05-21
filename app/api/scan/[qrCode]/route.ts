@@ -4,11 +4,12 @@ import { prisma } from "@/lib/prisma";
 // Public route - no authentication required
 export async function GET(
   request: Request,
-  { params }: { params: { qrCode: string } }
+  { params }: { params: Promise<{ qrCode: string }> }
 ) {
   try {
+    const { qrCode } = await params;
     const pet = await prisma.pet.findUnique({
-      where: { qrCode: params.qrCode },
+      where: { qrCode },
       select: {
         id: true,
         name: true,

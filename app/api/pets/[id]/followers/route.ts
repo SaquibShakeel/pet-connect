@@ -6,11 +6,12 @@ import { prisma } from "@/lib/prisma";
 // GET /api/pets/[id]/followers - Get pet's followers
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const followers = await prisma.follow.findMany({
-      where: { petId: params.id },
+      where: { petId: id },
       include: {
         user: {
           select: {

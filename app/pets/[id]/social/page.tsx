@@ -6,10 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Heart, MessageCircle, Send, ImagePlus, Users, Grid, Bookmark, Settings } from "lucide-react";
+import { Heart, MessageCircle, Send, ImagePlus, Users, Grid, Bookmark, Settings, X } from "lucide-react";
 import NewPost from "./new-post";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { format } from "date-fns";
 
 type Post = {
   id: string;
@@ -271,7 +272,7 @@ export default function SocialPage() {
                       <Settings className="h-4 w-4 mr-2" />
                       Edit Profile
                     </Button>
-                    <Button variant="outline" size="sm" onClick={() => router.push(`/pets/${id}/social/new`)}>
+                    <Button variant="outline" size="sm" onClick={() => router.push(`/pets/${id}/social/new-post`)}>
                       <ImagePlus className="h-4 w-4 mr-2" />
                       New Post
                     </Button>
@@ -361,26 +362,67 @@ export default function SocialPage() {
 
       {/* Post Modal */}
       {selectedPost && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <Card className="max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-            <CardContent className="p-0">
-              <div className="grid md:grid-cols-2">
-                <div className="relative aspect-square">
+        <div 
+          className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-2 sm:p-4"
+          onClick={() => setSelectedPost(null)}
+        >
+          <Card 
+            className="w-full h-[90vh] sm:max-w-5xl p-0 overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <CardContent className="p-0 h-full">
+              <div className="grid grid-rows-[1fr_auto] md:grid-cols-2 md:grid-rows-1 h-full">
+                {/* Image Section */}
+                <div className="relative bg-black h-[50vh] md:h-full">
                   <img
                     src={posts.find(p => p.id === selectedPost)?.image}
                     alt="Post"
-                    className="object-cover w-full h-full"
+                    className="object-contain w-full h-full"
                   />
                 </div>
-                <div className="p-4">
-                  <div className="space-y-4">
-                    {posts.find(p => p.id === selectedPost)?.caption && (
-                      <p className="text-sm">{posts.find(p => p.id === selectedPost)?.caption}</p>
-                    )}
-                    <div className="space-y-2">
+
+                {/* Content Section */}
+                <div className="flex flex-col h-[40vh] md:h-full overflow-y-auto">
+                  {/* Pet Info and Caption Section */}
+                  <div className="p-4 sm:p-8 border-b">
+                    <div className="space-y-4 sm:space-y-6">
+                      {/* Pet Profile */}
+                      <div className="flex items-center gap-3 sm:gap-4">
+                        <Avatar className="h-12 w-12 sm:h-14 sm:w-14">
+                          <AvatarImage
+                            src={pet?.image || ""}
+                            alt={pet?.name || ""}
+                          />
+                          <AvatarFallback>
+                            {pet?.name?.[0] || "P"}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <h2 className="text-lg sm:text-xl font-semibold">{pet?.name}</h2>
+                          <p className="text-sm sm:text-base text-muted-foreground">{pet?.type}</p>
+                        </div>
+                      </div>
+
+                      {/* Caption */}
+                      {posts.find(p => p.id === selectedPost)?.caption && (
+                        <div className="space-y-2">
+                          <p className="text-xs sm:text-sm text-muted-foreground">
+                            {format(new Date(posts.find(p => p.id === selectedPost)?.createdAt || ""), "MMMM d, yyyy")}
+                          </p>
+                          <p className="text-sm sm:text-base leading-relaxed">
+                            {posts.find(p => p.id === selectedPost)?.caption}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Comments Section */}
+                  <div className="flex-1">
+                    <div className="p-4 sm:p-8 space-y-6 sm:space-y-8">
                       {posts.find(p => p.id === selectedPost)?.comments.map((comment) => (
-                        <div key={comment.id} className="flex items-start gap-2">
-                          <Avatar className="h-8 w-8">
+                        <div key={comment.id} className="flex items-start gap-3 sm:gap-4">
+                          <Avatar className="h-8 w-8 sm:h-10 sm:w-10">
                             <AvatarImage
                               src={comment.user.image || ""}
                               alt={comment.user.name || ""}
@@ -389,28 +431,70 @@ export default function SocialPage() {
                               {comment.user.name?.[0] || "U"}
                             </AvatarFallback>
                           </Avatar>
-                          <div>
-                            <p className="text-sm font-medium">
-                              {comment.user.name}
-                            </p>
-                            <p className="text-sm">{comment.content}</p>
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <p className="text-sm sm:text-base font-semibold">
+                                {comment.user.name}
+                              </p>
+                              <p className="text-xs sm:text-sm text-muted-foreground">
+                                {format(new Date(comment.createdAt), "MMM d, yyyy")}
+                              </p>
+                            </div>
+                            <p className="text-sm sm:text-base leading-relaxed">{comment.content}</p>
                           </div>
                         </div>
                       ))}
                     </div>
+                  </div>
+
+                  {/* Comment Form Section */}
+                  <div className="p-4 sm:p-8 border-t bg-muted/50">
+                    {/* Like and Comment Count */}
+                    <div className="flex items-center gap-4 sm:gap-6 text-xs sm:text-sm text-muted-foreground mb-4 sm:mb-6">
+                      <div className="flex items-center gap-1 sm:gap-2">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleLike(selectedPost)}
+                          className={`hover:bg-red-50 transition-colors ${
+                            posts.find(p => p.id === selectedPost)?.likes.some(l => l.userId === session?.user?.id)
+                              ? "text-red-500 hover:text-red-600"
+                              : "hover:text-red-500"
+                          }`}
+                        >
+                          <Heart
+                            className={`h-4 w-4 sm:h-5 sm:w-5 transition-colors ${
+                              posts.find(p => p.id === selectedPost)?.likes.some(l => l.userId === session?.user?.id)
+                                ? "fill-red-500 text-red-500"
+                                : ""
+                            }`}
+                          />
+                        </Button>
+                        <span>{posts.find(p => p.id === selectedPost)?.likes.length || 0} likes</span>
+                      </div>
+                      <div className="flex items-center gap-1 sm:gap-2">
+                        <MessageCircle className="h-4 w-4 sm:h-5 sm:w-5" />
+                        <span>{posts.find(p => p.id === selectedPost)?.comments.length || 0} comments</span>
+                      </div>
+                    </div>
+
+                    {/* Comment Input */}
                     {session?.user && (
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 sm:gap-3">
                         <Textarea
                           value={newComment}
                           onChange={(e) => setNewComment(e.target.value)}
                           placeholder="Add a comment..."
-                          className="flex-1"
+                          className="flex-1 resize-none min-h-[60px] sm:min-h-[80px]"
+                          rows={2}
                         />
                         <Button
                           onClick={() => handleComment(selectedPost)}
                           disabled={!newComment.trim()}
+                          className="shrink-0 self-end"
+                          size="sm"
                         >
-                          <Send className="h-4 w-4" />
+                          <Send className="h-4 w-4 sm:h-5 sm:w-5" />
                         </Button>
                       </div>
                     )}

@@ -5,15 +5,16 @@ import { prisma } from "@/lib/prisma";
 // GET /api/pets/[id] - Get pet details
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   const session = await getServerSession();
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const pet = await prisma.pet.findUnique({
-    where: { id: params.id },
+    where: { id },
     include: {
       locations: {
         orderBy: { timestamp: "desc" },
@@ -36,8 +37,9 @@ export async function GET(
 // PATCH /api/pets/[id] - Update pet details
 export async function PATCH(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   const session = await getServerSession();
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -46,7 +48,7 @@ export async function PATCH(
   const { name, type, description, image } = await request.json();
 
   const pet = await prisma.pet.update({
-    where: { id: params.id },
+    where: { id },
     data: { 
       name, 
       type, 
@@ -71,15 +73,16 @@ export async function PATCH(
 // DELETE /api/pets/[id] - Delete pet
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   const session = await getServerSession();
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   await prisma.pet.delete({
-    where: { id: params.id },
+    where: { id },
   });
 
   return NextResponse.json({ success: true });
