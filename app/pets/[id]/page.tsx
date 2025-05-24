@@ -132,20 +132,20 @@ export default function PetPage() {
       <div className="container mx-auto py-8 px-4">
         <div className="animate-pulse space-y-8">
           <div className="flex items-center gap-4">
-            <div className="h-20 w-20 bg-gray-200 rounded-full"></div>
+            <div className="h-20 w-20 bg-muted rounded-full"></div>
             <div className="space-y-2">
-              <div className="h-6 bg-gray-200 rounded w-32"></div>
-              <div className="h-4 bg-gray-200 rounded w-24"></div>
+              <div className="h-6 bg-muted rounded w-32"></div>
+              <div className="h-4 bg-muted rounded w-24"></div>
             </div>
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <div className="space-y-4">
-              <div className="h-48 bg-gray-200 rounded-lg"></div>
-              <div className="h-32 bg-gray-200 rounded-lg"></div>
+              <div className="h-48 bg-muted rounded-lg"></div>
+              <div className="h-32 bg-muted rounded-lg"></div>
             </div>
             <div className="space-y-4">
-              <div className="h-48 bg-gray-200 rounded-lg"></div>
-              <div className="h-32 bg-gray-200 rounded-lg"></div>
+              <div className="h-48 bg-muted rounded-lg"></div>
+              <div className="h-32 bg-muted rounded-lg"></div>
             </div>
           </div>
         </div>
@@ -156,7 +156,7 @@ export default function PetPage() {
   if (error) {
     return (
       <div className="container mx-auto py-8 px-4">
-        <div className="bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-lg shadow-sm">
+        <div className="bg-destructive/10 border border-destructive/20 text-destructive px-6 py-4 rounded-lg shadow-sm">
           <h3 className="font-semibold mb-2">Error</h3>
           <p>{error}</p>
         </div>
@@ -169,10 +169,10 @@ export default function PetPage() {
       <div className="container mx-auto py-8 px-4">
         <div className="text-center max-w-md mx-auto">
           <div className="mb-6">
-            <PawPrint className="h-16 w-16 mx-auto text-gray-400" />
+            <PawPrint className="h-16 w-16 mx-auto text-muted-foreground" />
           </div>
-          <h2 className="text-2xl font-semibold text-gray-900 mb-2">Pet not found</h2>
-          <p className="text-gray-600 mb-6">The pet you're looking for doesn't exist or has been removed.</p>
+          <h2 className="text-2xl font-semibold mb-2">Pet not found</h2>
+          <p className="text-muted-foreground mb-6">The pet you're looking for doesn't exist or has been removed.</p>
           <Button onClick={() => router.push("/pets")} className="w-full sm:w-auto">
             Back to Pets
           </Button>
@@ -182,12 +182,12 @@ export default function PetPage() {
   }
 
   return (
-    <div className="container mx-auto py-8 px-4">
-      <div className="max-w-6xl mx-auto">
+    <div className="container mx-auto py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-6xl mx-auto space-y-10">
         {/* Header Section */}
-        <div className="mb-8">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
-            <Avatar className="h-24 w-24 border-4 border-white shadow-lg">
+        <div className="bg-card rounded-xl p-6 shadow-sm border">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-8">
+            <Avatar className="h-28 w-28 border-4 border-background shadow-lg">
               {pet.image ? (
                 <AvatarImage 
                   src={pet.image} 
@@ -195,67 +195,70 @@ export default function PetPage() {
                   className="object-cover"
                 />
               ) : (
-                <AvatarFallback className="text-2xl bg-primary/10">
+                <AvatarFallback className="text-3xl bg-primary/10">
                   {pet.name.charAt(0)}
                 </AvatarFallback>
               )}
             </Avatar>
-            <div className="flex-1">
+            <div className="flex-1 space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                  <h1 className="text-3xl font-bold text-gray-900">{pet.name}</h1>
-                  <p className="text-lg text-gray-600 mt-1">{pet.type}</p>
+                <div className="space-y-1">
+                  <h1 className="text-4xl font-bold tracking-tight">{pet.name}</h1>
+                  <p className="text-xl text-muted-foreground">{pet.type}</p>
                 </div>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-3">
                   <Button
                     variant="outline"
                     onClick={() => router.push(`/pets/${id}/social`)}
-                    className="flex items-center gap-2"
+                    className="flex items-center gap-2 hover:bg-primary hover:text-primary-foreground transition-colors"
                   >
                     <Share2 className="h-4 w-4" />
                     Social Feed
                   </Button>
                   <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
                     <DialogTrigger asChild>
-                      <Button variant="outline" className="flex items-center gap-2">
+                      <Button variant="outline" className="flex items-center gap-2 hover:bg-primary hover:text-primary-foreground transition-colors">
                         <Pencil className="h-4 w-4" />
                         Edit
                       </Button>
                     </DialogTrigger>
                     <DialogContent className="sm:max-w-[425px]">
                       <DialogHeader>
-                        <DialogTitle>Edit Pet Profile</DialogTitle>
+                        <DialogTitle className="text-2xl">Edit Pet Profile</DialogTitle>
                       </DialogHeader>
-                      <form onSubmit={handleUpdatePet} className="space-y-4">
+                      <form onSubmit={handleUpdatePet} className="space-y-6 pt-4">
                         <div className="space-y-2">
-                          <Label htmlFor="name">Name</Label>
+                          <Label htmlFor="name" className="text-base">Name</Label>
                           <Input
                             id="name"
                             value={editedPet.name || ""}
                             onChange={(e) => setEditedPet({ ...editedPet, name: e.target.value })}
                             required
+                            className="h-10"
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="type">Type</Label>
+                          <Label htmlFor="type" className="text-base">Type</Label>
                           <Input
                             id="type"
                             value={editedPet.type || ""}
                             onChange={(e) => setEditedPet({ ...editedPet, type: e.target.value })}
                             required
+                            className="h-10"
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="description">Description</Label>
+                          <Label htmlFor="description" className="text-base">Description</Label>
                           <Textarea
                             id="description"
                             value={editedPet.description || ""}
                             onChange={(e) => setEditedPet({ ...editedPet, description: e.target.value })}
                             rows={4}
+                            className="resize-none"
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="image">Image URL</Label>
+                          <Label htmlFor="image" className="text-base">Image URL</Label>
                           <div className="flex gap-2">
                             <Input
                               id="image"
@@ -263,39 +266,40 @@ export default function PetPage() {
                               value={editedPet.image || ""}
                               onChange={(e) => setEditedPet({ ...editedPet, image: e.target.value })}
                               placeholder="https://example.com/pet-image.jpg"
+                              className="h-10"
                             />
-                            <Button type="button" variant="outline" className="shrink-0">
+                            <Button type="button" variant="outline" className="shrink-0 hover:bg-primary hover:text-primary-foreground transition-colors">
                               <Camera className="h-4 w-4" />
                             </Button>
                           </div>
                         </div>
-                        <div className="flex justify-end gap-2 pt-4">
-                          <Button type="button" variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+                        <div className="flex justify-end gap-3 pt-4">
+                          <Button type="button" variant="outline" onClick={() => setIsEditDialogOpen(false)} className="hover:bg-primary hover:text-primary-foreground transition-colors">
                             Cancel
                           </Button>
-                          <Button type="submit">Save Changes</Button>
+                          <Button type="submit" className="px-6">Save Changes</Button>
                         </div>
                       </form>
                     </DialogContent>
                   </Dialog>
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
-                      <Button variant="destructive" className="flex items-center gap-2">
+                      <Button variant="destructive" className="flex items-center gap-2 hover:bg-destructive/90 transition-colors">
                         <Trash2 className="h-4 w-4" />
                         Delete
                       </Button>
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                       <AlertDialogHeader>
-                        <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                        <AlertDialogDescription>
+                        <AlertDialogTitle className="text-2xl">Are you sure?</AlertDialogTitle>
+                        <AlertDialogDescription className="text-base">
                           This action cannot be undone. This will permanently delete {pet.name}'s profile
                           and all associated data.
                         </AlertDialogDescription>
                       </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={handleDeletePet} className="bg-red-600 hover:bg-red-700">
+                      <AlertDialogFooter className="gap-3">
+                        <AlertDialogCancel className="hover:bg-primary hover:text-primary-foreground transition-colors">Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleDeletePet} className="bg-destructive hover:bg-destructive/90 px-6">
                           Delete
                         </AlertDialogAction>
                       </AlertDialogFooter>
@@ -304,7 +308,7 @@ export default function PetPage() {
                 </div>
               </div>
               {pet.description && (
-                <p className="text-gray-600 mt-4 max-w-2xl">{pet.description}</p>
+                <p className="text-muted-foreground text-lg mt-4 max-w-2xl leading-relaxed">{pet.description}</p>
               )}
             </div>
           </div>
@@ -313,67 +317,78 @@ export default function PetPage() {
         {/* Main Content */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* QR Code Section */}
-          <Card>
-            <CardHeader>
-              <CardTitle>QR Code</CardTitle>
-              <CardDescription>Scan this code to view {pet.name}'s profile</CardDescription>
+          <Card className="shadow-sm">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-2xl">QR Code</CardTitle>
+              <CardDescription className="text-base">Scan this code to view {pet.name}'s profile</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="flex justify-center p-4 bg-white rounded-lg">
+              <div className="flex justify-center p-6 bg-muted/30 rounded-lg">
                 <QRCodeSVG 
                   value={`${window.location.origin}/scan/${pet.qrCode}`} 
-                  size={200} 
+                  size={240}
+                  bgColor="transparent"
+                  fgColor="currentColor"
                 />
               </div>
             </CardContent>
           </Card>
 
           {/* Feeding History */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Last Feeding</CardTitle>
-              <CardDescription>Most recent feeding record for {pet.name}</CardDescription>
+          <Card className="shadow-sm">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-2xl">Last Feeding</CardTitle>
+              <CardDescription className="text-base">Most recent feeding record for {pet.name}</CardDescription>
             </CardHeader>
             <CardContent>
               {pet.feeds?.length > 0 ? (
-                <div className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
-                  <Clock className="h-5 w-5 text-gray-400 mt-0.5" />
-                  <div>
-                    <p className="text-sm font-medium text-gray-900">
+                <div className="flex items-start gap-4 p-4 bg-muted/30 rounded-lg">
+                  <Clock className="h-6 w-6 text-muted-foreground mt-0.5" />
+                  <div className="space-y-1">
+                    <p className="text-base font-medium">
                       {format(new Date(pet.feeds[0].timestamp), "MMM d, yyyy 'at' h:mm a")}
                     </p>
                     {pet.feeds[0].notes && (
-                      <p className="text-sm text-gray-600 mt-1">{pet.feeds[0].notes}</p>
+                      <p className="text-base text-muted-foreground">{pet.feeds[0].notes}</p>
                     )}
                   </div>
                 </div>
               ) : (
-                <p className="text-sm text-gray-500 text-center py-4">No feeding history yet</p>
+                <p className="text-base text-muted-foreground text-center py-6">No feeding history yet</p>
               )}
             </CardContent>
           </Card>
 
           {/* Location History */}
-          <Card className="lg:col-span-2">
-            <CardHeader>
-              <CardTitle>Last Location</CardTitle>
-              <CardDescription>Most recent location where {pet.name} has been</CardDescription>
+          <Card className="lg:col-span-2 shadow-sm">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-2xl">Last Location</CardTitle>
+              <CardDescription className="text-base">Most recent location where {pet.name} has been</CardDescription>
             </CardHeader>
             <CardContent>
               {pet.locations?.length > 0 ? (
-                <div className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
-                  <MapPin className="h-5 w-5 text-gray-400 mt-0.5" />
-                  <div>
-                    <p className="text-sm font-medium text-gray-900">
+                <div className="flex items-start gap-4 p-4 bg-muted/30 rounded-lg">
+                  <MapPin className="h-6 w-6 text-muted-foreground mt-0.5" />
+                  <div className="space-y-2">
+                    <p className="text-base font-medium">
                       {format(new Date(pet.locations[0].timestamp), "MMM d, yyyy 'at' h:mm a")}
                     </p>
-                    <p className="text-sm text-gray-600 mt-1">
+                    <p className="text-base text-muted-foreground">
                       Latitude: {pet.locations[0].latitude}, Longitude: {pet.locations[0].longitude}
                     </p>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="mt-2 hover:bg-primary hover:text-primary-foreground transition-colors"
+                      onClick={() => window.open(`https://www.google.com/maps?q=${pet.locations[0].latitude},${pet.locations[0].longitude}`, '_blank')}
+                    >
+                      <MapPin className="h-4 w-4 mr-2" />
+                      View on Google Maps
+                    </Button>
                   </div>
                 </div>
               ) : (
-                <p className="text-sm text-gray-500 text-center py-4">No location history yet</p>
+                <p className="text-base text-muted-foreground text-center py-6">No location history yet</p>
               )}
             </CardContent>
           </Card>

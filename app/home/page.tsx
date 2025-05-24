@@ -10,6 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Heart, MessageCircle, Send, MoreHorizontal, Bookmark } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { Textarea } from "@/components/ui/textarea";
+import { useTheme } from "next-themes";
 
 interface Post {
   id: string;
@@ -33,9 +34,10 @@ interface Post {
   }[];
 }
 
-export default function FeedPage() {
+export default function HomePage() {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const { theme } = useTheme();
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -161,10 +163,10 @@ export default function FeedPage() {
           {[1, 2, 3].map((i) => (
             <div key={i} className="animate-pulse">
               <div className="flex items-center gap-4 mb-4">
-                <div className="h-10 w-10 bg-gray-200 rounded-full"></div>
-                <div className="h-4 bg-gray-200 rounded w-1/4"></div>
+                <div className="h-10 w-10 bg-muted rounded-full"></div>
+                <div className="h-4 bg-muted rounded w-1/4"></div>
               </div>
-              <div className="aspect-square bg-gray-200 rounded-lg"></div>
+              <div className="aspect-square bg-muted rounded-lg"></div>
             </div>
           ))}
         </div>
@@ -175,7 +177,7 @@ export default function FeedPage() {
   if (error) {
     return (
       <div className="container max-w-2xl mx-auto py-8">
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+        <div className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded">
           Error: {error}
         </div>
       </div>
@@ -186,34 +188,34 @@ export default function FeedPage() {
     <div className="container max-w-2xl mx-auto py-8">
       <div className="space-y-8">
         {posts.map((post) => (
-          <Card key={post.id} className="overflow-hidden">
+          <Card key={post.id} className="overflow-hidden border-border/50 shadow-sm hover:shadow-md transition-shadow">
             <CardContent className="p-0">
               {/* Post Header */}
-              <div className="p-4 flex items-center justify-between">
+              <div className="p-4 flex items-center justify-between border-b border-border/50">
                 <div className="flex items-center gap-3">
-                  <Avatar className="h-10 w-10 cursor-pointer" onClick={() => router.push(`/pets/${post.pet.id}/social`)}>
+                  <Avatar className="h-10 w-10 cursor-pointer ring-2 ring-primary/10 hover:ring-primary/20 transition-all" onClick={() => router.push(`/pets/${post.pet.id}/social`)}>
                     {post.pet.image ? (
                       <AvatarImage src={post.pet.image} alt={post.pet.name} />
                     ) : (
-                      <AvatarFallback>{post.pet.name.charAt(0)}</AvatarFallback>
+                      <AvatarFallback className="bg-primary/10 text-primary">{post.pet.name.charAt(0)}</AvatarFallback>
                     )}
                   </Avatar>
                   <div>
-                    <p className="font-semibold cursor-pointer hover:underline" onClick={() => router.push(`/pets/${post.pet.id}/social`)}>
+                    <p className="font-semibold cursor-pointer hover:text-primary transition-colors" onClick={() => router.push(`/pets/${post.pet.id}/social`)}>
                       {post.pet.name}
                     </p>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-muted-foreground">
                       {formatDistanceToNow(new Date(post.createdAt), { addSuffix: true })}
                     </p>
                   </div>
                 </div>
-                <Button variant="ghost" size="icon">
+                <Button variant="ghost" size="icon" className="hover:bg-muted/50">
                   <MoreHorizontal className="h-5 w-5" />
                 </Button>
               </div>
 
               {/* Post Image */}
-              <div className="relative aspect-square">
+              <div className="relative aspect-square bg-muted/50">
                 <img
                   src={post.image}
                   alt="Post"
@@ -222,24 +224,24 @@ export default function FeedPage() {
               </div>
 
               {/* Post Actions */}
-              <div className="p-6">
+              <div className="p-6 space-y-4">
                 {/* Actions Row */}
-                <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Button
                       variant="ghost"
                       size="icon"
                       onClick={() => handleLike(post.id)}
-                      className={`hover:bg-red-50 transition-colors ${
+                      className={`hover:bg-red-50 dark:hover:bg-red-950/50 transition-colors ${
                         post.likes.some((l) => l.userId === session?.user?.id)
-                          ? "text-red-500 hover:text-red-600"
-                          : "hover:text-red-500"
+                          ? "text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300"
+                          : "hover:text-red-500 dark:hover:text-red-400"
                       }`}
                     >
                       <Heart
                         className={`h-6 w-6 transition-colors ${
                           post.likes.some((l) => l.userId === session?.user?.id)
-                            ? "fill-red-500 text-red-500"
+                            ? "fill-red-500 text-red-500 dark:fill-red-400 dark:text-red-400"
                             : ""
                         }`}
                       />
@@ -248,7 +250,7 @@ export default function FeedPage() {
                       variant="ghost"
                       size="icon"
                       onClick={() => setSelectedPost(selectedPost === post.id ? null : post.id)}
-                      className="hover:bg-blue-50 hover:text-blue-500 transition-colors"
+                      className="hover:bg-blue-50 dark:hover:bg-blue-950/50 hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
                     >
                       <MessageCircle className="h-6 w-6" />
                     </Button>
@@ -256,7 +258,7 @@ export default function FeedPage() {
                   <Button 
                     variant="ghost" 
                     size="icon"
-                    className="hover:bg-yellow-50 hover:text-yellow-500 transition-colors"
+                    className="hover:bg-yellow-50 dark:hover:bg-yellow-950/50 hover:text-yellow-500 dark:hover:text-yellow-400 transition-colors"
                   >
                     <Bookmark className="h-6 w-6" />
                   </Button>
@@ -264,14 +266,14 @@ export default function FeedPage() {
 
                 {/* Likes Count */}
                 {post.likes.length > 0 && (
-                  <p className="font-semibold text-sm mb-3">
+                  <p className="font-semibold text-sm">
                     {post.likes.length} {post.likes.length === 1 ? "like" : "likes"}
                   </p>
                 )}
 
                 {/* Caption */}
                 {post.caption && (
-                  <div className="mb-4">
+                  <div>
                     <p className="text-sm leading-relaxed">
                       <span className="font-semibold mr-2">{post.pet.name}</span>
                       {post.caption}
@@ -312,11 +314,11 @@ export default function FeedPage() {
       {/* Post Modal */}
       {selectedPost && (
         <div 
-          className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-2 sm:p-4"
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4"
           onClick={() => setSelectedPost(null)}
         >
           <Card 
-            className="w-full h-[90vh] sm:max-w-5xl p-0 overflow-hidden"
+            className="w-full h-[90vh] sm:max-w-5xl p-0 overflow-hidden border-border/50"
             onClick={(e) => e.stopPropagation()}
           >
             <CardContent className="p-0 h-full">
@@ -333,21 +335,21 @@ export default function FeedPage() {
                 {/* Content Section */}
                 <div className="flex flex-col h-[40vh] md:h-full overflow-y-auto">
                   {/* Pet Info and Caption Section */}
-                  <div className="p-4 sm:p-8 border-b">
+                  <div className="p-4 sm:p-8 border-b border-border/50">
                     <div className="space-y-4 sm:space-y-6">
                       {/* Pet Profile */}
                       <div className="flex items-center gap-3 sm:gap-4">
-                        <Avatar className="h-12 w-12 sm:h-14 sm:w-14 cursor-pointer" onClick={() => router.push(`/pets/${posts.find(p => p.id === selectedPost)?.pet.id}/social`)}>
+                        <Avatar className="h-12 w-12 sm:h-14 sm:w-14 cursor-pointer ring-2 ring-primary/10 hover:ring-primary/20 transition-all" onClick={() => router.push(`/pets/${posts.find(p => p.id === selectedPost)?.pet.id}/social`)}>
                           <AvatarImage
                             src={posts.find(p => p.id === selectedPost)?.pet.image || ""}
                             alt={posts.find(p => p.id === selectedPost)?.pet.name || ""}
                           />
-                          <AvatarFallback>
+                          <AvatarFallback className="bg-primary/10 text-primary">
                             {posts.find(p => p.id === selectedPost)?.pet.name?.[0] || "P"}
                           </AvatarFallback>
                         </Avatar>
                         <div>
-                          <h2 className="text-lg sm:text-xl font-semibold cursor-pointer hover:underline" onClick={() => router.push(`/pets/${posts.find(p => p.id === selectedPost)?.pet.id}/social`)}>
+                          <h2 className="text-lg sm:text-xl font-semibold cursor-pointer hover:text-primary transition-colors" onClick={() => router.push(`/pets/${posts.find(p => p.id === selectedPost)?.pet.id}/social`)}>
                             {posts.find(p => p.id === selectedPost)?.pet.name}
                           </h2>
                           <p className="text-sm sm:text-base text-muted-foreground">
@@ -372,12 +374,12 @@ export default function FeedPage() {
                     <div className="p-4 sm:p-8 space-y-6 sm:space-y-8">
                       {posts.find(p => p.id === selectedPost)?.comments.map((comment) => (
                         <div key={comment.id} className="flex items-start gap-3 sm:gap-4">
-                          <Avatar className="h-8 w-8 sm:h-10 sm:w-10">
+                          <Avatar className="h-8 w-8 sm:h-10 sm:w-10 ring-2 ring-primary/10">
                             <AvatarImage
                               src={comment.user.image || ""}
                               alt={comment.user.name || ""}
                             />
-                            <AvatarFallback>
+                            <AvatarFallback className="bg-primary/10 text-primary">
                               {comment.user.name?.[0] || "U"}
                             </AvatarFallback>
                           </Avatar>
@@ -398,7 +400,7 @@ export default function FeedPage() {
                   </div>
 
                   {/* Comment Form Section */}
-                  <div className="p-4 sm:p-8 border-t bg-muted/50">
+                  <div className="p-4 sm:p-8 border-t border-border/50 bg-muted/50">
                     {/* Like and Comment Count */}
                     <div className="flex items-center gap-4 sm:gap-6 text-xs sm:text-sm text-muted-foreground mb-4 sm:mb-6">
                       <div className="flex items-center gap-1 sm:gap-2">
@@ -406,16 +408,16 @@ export default function FeedPage() {
                           variant="ghost"
                           size="icon"
                           onClick={() => handleLike(selectedPost)}
-                          className={`hover:bg-red-50 transition-colors ${
+                          className={`hover:bg-red-50 dark:hover:bg-red-950/50 transition-colors ${
                             posts.find(p => p.id === selectedPost)?.likes.some(l => l.userId === session?.user?.id)
-                              ? "text-red-500 hover:text-red-600"
-                              : "hover:text-red-500"
+                              ? "text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300"
+                              : "hover:text-red-500 dark:hover:text-red-400"
                           }`}
                         >
                           <Heart
                             className={`h-4 w-4 sm:h-5 sm:w-5 transition-colors ${
                               posts.find(p => p.id === selectedPost)?.likes.some(l => l.userId === session?.user?.id)
-                                ? "fill-red-500 text-red-500"
+                                ? "fill-red-500 text-red-500 dark:fill-red-400 dark:text-red-400"
                                 : ""
                             }`}
                           />
@@ -435,7 +437,7 @@ export default function FeedPage() {
                           value={newComment}
                           onChange={(e) => setNewComment(e.target.value)}
                           placeholder="Add a comment..."
-                          className="flex-1 resize-none min-h-[60px] sm:min-h-[80px]"
+                          className="flex-1 resize-none min-h-[60px] sm:min-h-[80px] bg-background"
                           rows={2}
                         />
                         <Button

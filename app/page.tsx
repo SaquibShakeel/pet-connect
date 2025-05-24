@@ -13,7 +13,7 @@ export default function HomePage() {
 
   useEffect(() => {
     if (status === "authenticated") {
-      router.push("/feed");
+      router.push("/home");
     }
   }, [status, router]);
 

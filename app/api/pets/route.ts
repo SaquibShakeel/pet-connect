@@ -49,6 +49,11 @@ export async function POST(req: Request) {
       description,
       qrCode: uuidv4(),
       userId: user.id,
+      followers: {
+        create: {
+          userId: user.id
+        }
+      }
     },
   });
 

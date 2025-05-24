@@ -15,6 +15,14 @@ export async function GET(
         name: true,
         type: true,
         image: true,
+        description: true,
+        user: {
+          select: {
+            id: true,
+            name: true,
+            image: true,
+          },
+        },
       },
     });
 

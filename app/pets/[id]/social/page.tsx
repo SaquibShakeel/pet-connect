@@ -244,17 +244,17 @@ export default function SocialPage() {
   const isPetOwner = session?.user?.id === pet?.userId;
 
   return (
-    <div className="container mx-auto py-8">
+    <div className="container mx-auto py-4 md:py-8 min-h-screen bg-background">
       {/* Profile Header */}
-      <div className="max-w-4xl mx-auto">
-        <div className="flex flex-col md:flex-row gap-8 mb-12">
+      <div className="max-w-4xl mx-auto px-4 md:px-0">
+        <div className="flex flex-col md:flex-row gap-8 mb-8 md:mb-12">
           {/* Profile Image */}
-          <div className="flex-shrink-0">
-            <Avatar className="h-32 w-32 border-4 border-white shadow-lg">
+          <div className="flex-shrink-0 flex justify-center md:justify-start">
+            <Avatar className="h-24 w-24 md:h-32 md:w-32 border-4 border-background shadow-lg ring-2 ring-primary/20">
               {pet?.image ? (
                 <AvatarImage src={pet.image} alt={pet?.name} className="object-cover" />
               ) : (
-                <AvatarFallback className="text-4xl bg-primary/10">
+                <AvatarFallback className="text-4xl bg-primary/10 text-primary">
                   {pet?.name?.charAt(0)}
                 </AvatarFallback>
               )}
@@ -262,28 +262,31 @@ export default function SocialPage() {
           </div>
 
           {/* Profile Info */}
-          <div className="flex-1">
+          <div className="flex-1 text-center md:text-left">
             <div className="flex flex-col md:flex-row md:items-center gap-4 mb-4">
-              <h1 className="text-2xl font-bold">{pet?.name}</h1>
-              <div className="flex gap-2">
+              <h1 className="text-xl md:text-2xl font-bold text-foreground">{pet?.name}</h1>
+              <div className="flex justify-center md:justify-start gap-2">
                 {isPetOwner ? (
-                  <>
-                    <Button variant="outline" size="sm" onClick={() => router.push(`/pets/${id}`)}>
-                      <Settings className="h-4 w-4 mr-2" />
-                      Edit Profile
-                    </Button>
-                    <Button variant="outline" size="sm" onClick={() => router.push(`/pets/${id}/social/new-post`)}>
-                      <ImagePlus className="h-4 w-4 mr-2" />
-                      New Post
-                    </Button>
-                  </>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => router.push(`/pets/${id}/social/new-post`)}
+                    className="hover:bg-primary/10 transition-colors"
+                  >
+                    <ImagePlus className="h-4 w-4 mr-2" />
+                    New Post
+                  </Button>
                 ) : (
                   <Button
                     onClick={handleFollow}
                     disabled={isLoadingFollow}
                     variant={isFollowing ? "outline" : "default"}
                     size="sm"
-                    className="min-w-[100px]"
+                    className={`min-w-[100px] transition-all ${
+                      isFollowing 
+                        ? "hover:bg-destructive/10 hover:text-destructive hover:border-destructive" 
+                        : "hover:bg-primary/90"
+                    }`}
                   >
                     {isLoadingFollow ? (
                       <span className="flex items-center">
@@ -302,49 +305,49 @@ export default function SocialPage() {
             </div>
 
             {/* Stats */}
-            <div className="flex gap-8 mb-4">
+            <div className="flex justify-center md:justify-start gap-8 mb-4">
               <div className="flex items-center gap-2">
-                <span className="font-semibold">{posts.length}</span>
-                <span className="text-gray-600">posts</span>
+                <span className="font-semibold text-foreground">{posts.length}</span>
+                <span className="text-muted-foreground">posts</span>
               </div>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => router.push(`/pets/${id}/followers`)}
-                className="p-0 h-auto hover:bg-transparent"
+                className="p-0 h-auto hover:bg-transparent hover:text-primary transition-colors"
               >
                 <div className="flex items-center gap-2">
-                  <span className="font-semibold">{followersCount}</span>
-                  <span className="text-gray-600">followers</span>
+                  <span className="font-semibold text-foreground">{followersCount}</span>
+                  <span className="text-muted-foreground">followers</span>
                 </div>
               </Button>
             </div>
 
             {/* Bio */}
             <div className="space-y-1">
-              <p className="font-semibold">{pet?.type}</p>
+              <p className="font-semibold text-foreground">{pet?.type}</p>
               {pet?.description && (
-                <p className="text-gray-600">{pet.description}</p>
+                <p className="text-muted-foreground">{pet.description}</p>
               )}
             </div>
           </div>
         </div>
 
         {/* Posts Grid */}
-        <div className="border-t pt-8">
-          <div className="grid grid-cols-3 gap-1">
+        <div className="border-t border-border pt-4 md:pt-8">
+          <div className="grid grid-cols-3 gap-0.5 md:gap-1">
             {posts.map((post) => (
               <div
                 key={post.id}
-                className="aspect-square relative group cursor-pointer"
+                className="aspect-square relative group cursor-pointer overflow-hidden bg-card"
                 onClick={() => setSelectedPost(selectedPost === post.id ? null : post.id)}
               >
                 <img
                   src={post.image}
                   alt="Post"
-                  className="object-cover w-full h-full"
+                  className="object-cover w-full h-full transition-transform group-hover:scale-105"
                 />
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4">
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center gap-4">
                   <div className="flex items-center gap-2 text-white">
                     <Heart className="h-6 w-6" />
                     <span>{post.likes.length}</span>
@@ -363,11 +366,11 @@ export default function SocialPage() {
       {/* Post Modal */}
       {selectedPost && (
         <div 
-          className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-2 sm:p-4"
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-0 md:p-4"
           onClick={() => setSelectedPost(null)}
         >
           <Card 
-            className="w-full h-[90vh] sm:max-w-5xl p-0 overflow-hidden"
+            className="w-full h-full md:h-[90vh] md:max-w-5xl p-0 overflow-hidden bg-card border-border rounded-none md:rounded-lg"
             onClick={(e) => e.stopPropagation()}
           >
             <CardContent className="p-0 h-full">
@@ -379,37 +382,45 @@ export default function SocialPage() {
                     alt="Post"
                     className="object-contain w-full h-full"
                   />
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="absolute top-2 right-2 md:hidden text-white hover:bg-black/20"
+                    onClick={() => setSelectedPost(null)}
+                  >
+                    <X className="h-6 w-6" />
+                  </Button>
                 </div>
 
                 {/* Content Section */}
-                <div className="flex flex-col h-[40vh] md:h-full overflow-y-auto">
+                <div className="flex flex-col h-[50vh] md:h-full overflow-y-auto bg-card">
                   {/* Pet Info and Caption Section */}
-                  <div className="p-4 sm:p-8 border-b">
-                    <div className="space-y-4 sm:space-y-6">
+                  <div className="p-4 border-b border-border">
+                    <div className="space-y-4">
                       {/* Pet Profile */}
-                      <div className="flex items-center gap-3 sm:gap-4">
-                        <Avatar className="h-12 w-12 sm:h-14 sm:w-14">
+                      <div className="flex items-center gap-3">
+                        <Avatar className="h-10 w-10 ring-1 ring-primary/20">
                           <AvatarImage
                             src={pet?.image || ""}
                             alt={pet?.name || ""}
                           />
-                          <AvatarFallback>
+                          <AvatarFallback className="bg-primary/10 text-primary">
                             {pet?.name?.[0] || "P"}
                           </AvatarFallback>
                         </Avatar>
                         <div>
-                          <h2 className="text-lg sm:text-xl font-semibold">{pet?.name}</h2>
-                          <p className="text-sm sm:text-base text-muted-foreground">{pet?.type}</p>
+                          <h2 className="text-base font-semibold text-foreground">{pet?.name}</h2>
+                          <p className="text-sm text-muted-foreground">{pet?.type}</p>
                         </div>
                       </div>
 
                       {/* Caption */}
                       {posts.find(p => p.id === selectedPost)?.caption && (
-                        <div className="space-y-2">
-                          <p className="text-xs sm:text-sm text-muted-foreground">
+                        <div className="space-y-1">
+                          <p className="text-xs text-muted-foreground">
                             {format(new Date(posts.find(p => p.id === selectedPost)?.createdAt || ""), "MMMM d, yyyy")}
                           </p>
-                          <p className="text-sm sm:text-base leading-relaxed">
+                          <p className="text-sm leading-relaxed text-foreground">
                             {posts.find(p => p.id === selectedPost)?.caption}
                           </p>
                         </div>
@@ -419,28 +430,28 @@ export default function SocialPage() {
 
                   {/* Comments Section */}
                   <div className="flex-1">
-                    <div className="p-4 sm:p-8 space-y-6 sm:space-y-8">
+                    <div className="p-4 space-y-4">
                       {posts.find(p => p.id === selectedPost)?.comments.map((comment) => (
-                        <div key={comment.id} className="flex items-start gap-3 sm:gap-4">
-                          <Avatar className="h-8 w-8 sm:h-10 sm:w-10">
+                        <div key={comment.id} className="flex items-start gap-3">
+                          <Avatar className="h-8 w-8 ring-1 ring-primary/20">
                             <AvatarImage
                               src={comment.user.image || ""}
                               alt={comment.user.name || ""}
                             />
-                            <AvatarFallback>
+                            <AvatarFallback className="bg-primary/10 text-primary">
                               {comment.user.name?.[0] || "U"}
                             </AvatarFallback>
                           </Avatar>
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-1">
-                              <p className="text-sm sm:text-base font-semibold">
+                              <p className="text-sm font-semibold text-foreground">
                                 {comment.user.name}
                               </p>
-                              <p className="text-xs sm:text-sm text-muted-foreground">
+                              <p className="text-xs text-muted-foreground">
                                 {format(new Date(comment.createdAt), "MMM d, yyyy")}
                               </p>
                             </div>
-                            <p className="text-sm sm:text-base leading-relaxed">{comment.content}</p>
+                            <p className="text-sm leading-relaxed text-foreground">{comment.content}</p>
                           </div>
                         </div>
                       ))}
@@ -448,22 +459,22 @@ export default function SocialPage() {
                   </div>
 
                   {/* Comment Form Section */}
-                  <div className="p-4 sm:p-8 border-t bg-muted/50">
+                  <div className="p-4 border-t border-border bg-muted/50">
                     {/* Like and Comment Count */}
-                    <div className="flex items-center gap-4 sm:gap-6 text-xs sm:text-sm text-muted-foreground mb-4 sm:mb-6">
-                      <div className="flex items-center gap-1 sm:gap-2">
+                    <div className="flex items-center gap-4 text-xs text-muted-foreground mb-4">
+                      <div className="flex items-center gap-1">
                         <Button
                           variant="ghost"
                           size="icon"
                           onClick={() => handleLike(selectedPost)}
-                          className={`hover:bg-red-50 transition-colors ${
+                          className={`hover:bg-red-50 dark:hover:bg-red-950/50 transition-colors ${
                             posts.find(p => p.id === selectedPost)?.likes.some(l => l.userId === session?.user?.id)
                               ? "text-red-500 hover:text-red-600"
                               : "hover:text-red-500"
                           }`}
                         >
                           <Heart
-                            className={`h-4 w-4 sm:h-5 sm:w-5 transition-colors ${
+                            className={`h-5 w-5 transition-colors ${
                               posts.find(p => p.id === selectedPost)?.likes.some(l => l.userId === session?.user?.id)
                                 ? "fill-red-500 text-red-500"
                                 : ""
@@ -472,29 +483,29 @@ export default function SocialPage() {
                         </Button>
                         <span>{posts.find(p => p.id === selectedPost)?.likes.length || 0} likes</span>
                       </div>
-                      <div className="flex items-center gap-1 sm:gap-2">
-                        <MessageCircle className="h-4 w-4 sm:h-5 sm:w-5" />
+                      <div className="flex items-center gap-1">
+                        <MessageCircle className="h-5 w-5" />
                         <span>{posts.find(p => p.id === selectedPost)?.comments.length || 0} comments</span>
                       </div>
                     </div>
 
                     {/* Comment Input */}
                     {session?.user && (
-                      <div className="flex gap-2 sm:gap-3">
+                      <div className="flex gap-2">
                         <Textarea
                           value={newComment}
                           onChange={(e) => setNewComment(e.target.value)}
                           placeholder="Add a comment..."
-                          className="flex-1 resize-none min-h-[60px] sm:min-h-[80px]"
-                          rows={2}
+                          className="flex-1 resize-none min-h-[40px] bg-background text-sm"
+                          rows={1}
                         />
                         <Button
                           onClick={() => handleComment(selectedPost)}
                           disabled={!newComment.trim()}
-                          className="shrink-0 self-end"
+                          className="shrink-0 self-end hover:bg-primary/90 transition-colors"
                           size="sm"
                         >
-                          <Send className="h-4 w-4 sm:h-5 sm:w-5" />
+                          <Send className="h-4 w-4" />
                         </Button>
                       </div>
                     )}
