@@ -6,9 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Heart, MessageCircle, Send, ImagePlus, Users, Grid, Bookmark, Settings, X } from "lucide-react";
-import NewPost from "./new-post";
-import Image from "next/image";
+import { Heart, MessageCircle, Send, ImagePlus, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 

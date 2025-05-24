@@ -9,7 +9,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { PawPrint, User, Edit2, Heart, MessageCircle } from "lucide-react";
+import { PawPrint, User, Edit2 } from "lucide-react";
 
 interface UserProfile {
   id: string;
