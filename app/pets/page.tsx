@@ -14,6 +14,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { ImagePlus } from "lucide-react";
 
 type Pet = {
   id: string;
@@ -30,6 +31,9 @@ export default function PetsPage() {
   const [error, setError] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [newPet, setNewPet] = useState({ name: "", type: "", description: "", image: "" });
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -52,20 +56,62 @@ export default function PetsPage() {
   async function handleAddPet(e: React.FormEvent) {
     e.preventDefault();
     try {
+      setUploading(true);
+      setError("");
+
+      let imageUrl = newPet.image;
+
+      if (imageFile) {
+        const formData = new FormData();
+        formData.append("file", imageFile);
+        formData.append("upload_preset", "pet_connect");
+
+        const uploadRes = await fetch(
+          `https://api.cloudinary.com/v1_1/dp0ujlbby/image/upload`,
+          {
+            method: "POST",
+            body: formData,
+          }
+        );
+
+        if (!uploadRes.ok) {
+          throw new Error("Failed to upload image");
+        }
+
+        const { secure_url } = await uploadRes.json();
+        imageUrl = secure_url;
+      }
+
       const res = await fetch("/api/pets", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newPet),
+        body: JSON.stringify({ ...newPet, image: imageUrl }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       setPets([...pets, data.pet]);
       setIsDialogOpen(false);
       setNewPet({ name: "", type: "", description: "", image: "" });
+      setImageFile(null);
+      setImagePreview(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to add pet");
+    } finally {
+      setUploading(false);
     }
   }
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
@@ -120,17 +166,44 @@ export default function PetsPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="image" className="text-sm font-medium">Image URL</Label>
-                <Input
-                  id="image"
-                  type="url"
-                  value={newPet.image}
-                  onChange={(e) => setNewPet({ ...newPet, image: e.target.value })}
-                  placeholder="https://example.com/pet-image.jpg"
-                  className="w-full px-3 py-2 border rounded-md dark:bg-gray-800 dark:border-gray-700"
-                />
+                <Label htmlFor="image" className="text-sm font-medium">Pet Image</Label>
+                <div className="flex flex-col gap-4">
+                  <div className="flex items-center gap-4">
+                    <input
+                      type="file"
+                      id="image"
+                      accept="image/*"
+                      onChange={handleImageChange}
+                      className="hidden"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => document.getElementById("image")?.click()}
+                      className="w-full"
+                    >
+                      <ImagePlus className="h-4 w-4 mr-2" />
+                      {imageFile ? "Change Image" : "Select Image"}
+                    </Button>
+                  </div>
+                  {imagePreview && (
+                    <div className="relative w-full h-48 rounded-lg overflow-hidden">
+                      <img
+                        src={imagePreview}
+                        alt="Preview"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  )}
+                </div>
               </div>
-              <Button type="submit" className="w-full mt-6 bg-primary hover:bg-primary/90">Add Pet</Button>
+              <Button 
+                type="submit" 
+                className="w-full mt-6 bg-primary hover:bg-primary/90"
+                disabled={uploading}
+              >
+                {uploading ? "Adding Pet..." : "Add Pet"}
+              </Button>
             </form>
           </DialogContent>
         </Dialog>
@@ -171,4 +244,4 @@ export default function PetsPage() {
       )}
     </div>
   );
-} 
+}

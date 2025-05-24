@@ -26,7 +26,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Calendar, Clock, MapPin, PawPrint, Pencil, Trash2, Share2, Camera } from "lucide-react";
+import { Calendar, Clock, MapPin, PawPrint, Pencil, Trash2, Share2, Camera, ImagePlus } from "lucide-react";
 import { format } from "date-fns";
 
 type Pet = {
@@ -62,6 +62,9 @@ export default function PetPage() {
   const [feedNote, setFeedNote] = useState("");
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editedPet, setEditedPet] = useState<Partial<Pet>>({});
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     fetchPet();
@@ -101,19 +104,61 @@ export default function PetPage() {
   async function handleUpdatePet(e: React.FormEvent) {
     e.preventDefault();
     try {
+      setUploading(true);
+      setError("");
+
+      let imageUrl = editedPet.image;
+
+      if (imageFile) {
+        const formData = new FormData();
+        formData.append("file", imageFile);
+        formData.append("upload_preset", "pet_connect");
+
+        const uploadRes = await fetch(
+          `https://api.cloudinary.com/v1_1/dp0ujlbby/image/upload`,
+          {
+            method: "POST",
+            body: formData,
+          }
+        );
+
+        if (!uploadRes.ok) {
+          throw new Error("Failed to upload image");
+        }
+
+        const { secure_url } = await uploadRes.json();
+        imageUrl = secure_url;
+      }
+
       const res = await fetch(`/api/pets/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(editedPet),
+        body: JSON.stringify({ ...editedPet, image: imageUrl }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       setPet(data.pet);
       setIsEditDialogOpen(false);
+      setImageFile(null);
+      setImagePreview(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to update pet");
+    } finally {
+      setUploading(false);
     }
   }
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   async function handleDeletePet() {
     try {
@@ -258,26 +303,57 @@ export default function PetPage() {
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="image" className="text-base">Image URL</Label>
-                          <div className="flex gap-2">
-                            <Input
-                              id="image"
-                              type="url"
-                              value={editedPet.image || ""}
-                              onChange={(e) => setEditedPet({ ...editedPet, image: e.target.value })}
-                              placeholder="https://example.com/pet-image.jpg"
-                              className="h-10"
-                            />
-                            <Button type="button" variant="outline" className="shrink-0 hover:bg-primary hover:text-primary-foreground transition-colors">
-                              <Camera className="h-4 w-4" />
-                            </Button>
+                          <Label htmlFor="image" className="text-base">Pet Image</Label>
+                          <div className="flex flex-col gap-4">
+                            <div className="flex items-center gap-4">
+                              <input
+                                type="file"
+                                id="image"
+                                accept="image/*"
+                                onChange={handleImageChange}
+                                className="hidden"
+                              />
+                              <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => document.getElementById("image")?.click()}
+                                className="w-full"
+                              >
+                                <ImagePlus className="h-4 w-4 mr-2" />
+                                {imageFile ? "Change Image" : "Select Image"}
+                              </Button>
+                            </div>
+                            {imagePreview && (
+                              <div className="relative w-full h-48 rounded-lg overflow-hidden">
+                                <img
+                                  src={imagePreview}
+                                  alt="Preview"
+                                  className="w-full h-full object-cover"
+                                />
+                              </div>
+                            )}
                           </div>
                         </div>
                         <div className="flex justify-end gap-3 pt-4">
-                          <Button type="button" variant="outline" onClick={() => setIsEditDialogOpen(false)} className="hover:bg-primary hover:text-primary-foreground transition-colors">
+                          <Button 
+                            type="button" 
+                            variant="outline" 
+                            onClick={() => {
+                              setIsEditDialogOpen(false);
+                              setImageFile(null);
+                              setImagePreview(null);
+                            }} 
+                            className="hover:bg-primary hover:text-primary-foreground transition-colors"
+                          >
                             Cancel
                           </Button>
-                          <Button type="submit" className="px-6">Save Changes</Button>
+                          <Button 
+                            type="submit" 
+                            className="px-6"
+                            disabled={uploading}
+                          >
+                            {uploading ? "Saving..." : "Save Changes"}
+                          </Button>
                         </div>
                       </form>
                     </DialogContent>
@@ -396,4 +472,4 @@ export default function PetPage() {
       </div>
     </div>
   );
-} 
+}
